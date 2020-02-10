@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang=en>
+  <meta charset=utf-8>
+<meta name="viewport" content="initial-scale=1, width=device-width">
+  <title>Animate Plus: Example 1</title>
+  <style>
+body {
+  margin: 0;
+  overflow: hidden;
+  background: #FBFBFD;
+  font: 500 16px -apple-system, BlinkMacSystemFont, sans-serif;
+  font-feature-settings: "tnum";
+}
+
+body * {
+  position: absolute;
+}
+
+span {
+  border-radius: 50%;
+  transform-origin: 0 0;
+  opacity: 0;
+}
+#ButtonBar, #Menus {
+	position: relative;
+	display: flex;
+    width: 100%;
+    justify-content: space-evenly;
+	z-index: 200;
+}
+
+div > div, div > a, button {
+	position: inherit;
+	z-index: 200;
+}
+.menu {
+	margin: 10px 0 0 0;
+	padding: 10px 30px;
+	background-color: #fff;
+	border: solid 1px #000;
+	cursor: pointer;
+	box-shadow: 0px 5px 10px #0009;
+	transform: translateY(-50vh);
+}
+.menu:hover {
+	background-color: skyblue;
+}
+#Backdrop {
+	position: absolute;
+	top: 0;
+	height: 100vh;
+	width: 100vw;
+	z-index: 100;
+	display: grid;
+	place-items: center;
+	background-color: #2E2C3355;
+	opacity: 0;
+}
+.panel {
+	margin: 10px;
+	padding: 10px 10px 10px 10px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-direction: row;
+    flex-wrap: wrap;
+	color: #fed;
+	background-color: #234;
+	transform: translateY(-50vh);
+	border-radius: 10px;
+	opacity: 0;
+	min-height: 100px;
+	min-width: 250px;
+}
+.panel > div,
+.panel > button {
+	position: relative;
+    display: flex;
+	clear: both;
+	align-items: center;
+	justify-content: center;
+    text-align: center;
+	width: 100%;
+}
+.panel > div > button {
+    position: relative;
+	width: 50%;
+}
+.panel-button {
+	margin: 0px 2px;
+	padding: 5px 5px;
+	border: solid 1px #fed;
+    border-radius: 5px;
+	width: 100%;
+}
+
+  </style>
+  <div id="ButtonBar">
+	  <div>
+	  <button id="ShowMenu">Menu</button>
+	  </div>
+	  <div>
+	  <button id="ShowNotifiction">Notifiction</button>
+	  <button id="ShowAlert">Alert</button>
+	  <button id="ShowDialogue">Dialogue</button>
+	  </div>
+  <div>
+	  <button id="RestartCircles">Restart</button>
+	  <button id="PauseCircles">Pause</button>
+	  <button id="ReverseCircles">Reverse</button>
+	  <button id="PlayCircles">Play</button>
+	  </div>
+  </div>
+  <div id="Menus">
+	<a class="menu" id="Menu1">Menu 1</a>
+	<a class="menu" id="Menu2">Menu 2</a>
+	<a class="menu" id="Menu3">Menu 3</a>
+	<a class="menu" id="Menu4">Menu 4</a>
+	<a class="menu" id="Menu5">Menu 5</a>
+  </div>
+  <div id="Backdrop">
+	  <div class="panel" id="NotifictionPanel"><div>Some notifiction!</div></div>
+	  <div class="panel" id="AlertPanel"><div>You are Alerted!</div><button class="panel-button" id="hideAlert">Ok</button></div>
+	  <div class="panel" id="DialoguePanel"><div>To continue or not to continue</div><div><button class="panel-button" id="HideDialogueAndContinue">Continue</button> <button class="panel-button" id="HideDialogueAndStop">Stop</button></div></div>
+  </div>
+
+
+  <script type="module">
+
+//import animate, {stop} from "https://cdn.jsdelivr.net/npm/animateplus@2/animateplus.js";
+import animate, {delay, direction, loop, pause, play, seek, speed, stop, toggle} from "./animateplus.custom.js";
+
+const list = (length, callback) =>
+  Array.from(new Array(length), (hole, index) => callback(index));
+
+const random = (min, max) =>
+  Math.random() * (max - min) + min;
+
+const randomColor = () =>
+  `#${palette[Math.floor(random(0, palette.length))]}`;
+
+const palette = [
+  "616AFF",
+  "2DBAE7",
+  "FFBF00",
+  "48DC6B",
+  "DBDEEA",
+  "FC6E3F"
+];
+
+const elements = list(5, () => {
+  const circle = document.createElement("span");
+  const size = random(20, 100);
+  Object.assign(circle.style, {
+    width: `${size}px`,
+    height: `${size}px`,
+    left: `${random(0, 100)}%`,
+    top: `${random(0, 100)}%`,
+    background: randomColor()
+  });
+  return circle;
+});
+
+document.body.append(...elements);
+
+const fadeInCircles = () => {
+	animate({
+	  elements,
+	  name: "fadeInCircles",
+	  easing: "out-cubic",
+	  duration: 5000,
+	  opacity: [0, 1]
+	});
+};
+const fadeOutCircles = async () => {  
+  await animate({
+	  elements,
+	  name: "fadeOutCircles",
+	  easing: "out-cubic",
+	  duration: 5000,
+	  speed: 4,  
+	  opacity: index => [elements[index].style.opacity, 0]
+  });  
+};
+const rotateCircles = async () => {	
+	await animate({
+	  elements,
+	  name: "rotateCircles",
+	  easing: "linear",
+	  duration: index => 1000 + index * 100,
+	  loop: true,
+	  transform: ["rotate(0turn)", 1]
+	});
+};
+fadeInCircles();
+rotateCircles();
+const fadeInBackdrop = () => {	
+	 animate({
+	  elements: "#Backdrop",
+	  name: "fadeInBackdrop",
+	  duration: 500,
+	  easing: "in-out-quintic",
+	  opacity: [0, 1]
+	});
+}
+const fadeOutBackdrop = () => {	
+	 animate({
+	  elements: "#Backdrop",
+	  name: "fadeOutBackdrop",
+	  duration: 500,
+	  easing: "in-out-quintic",
+	  opacity: [1, 0]
+	});
+}
+const slideInNotifictionPanel = () => {	
+	 animate({
+	  elements: "#NotifictionPanel",
+	  name: "slideInNotifictionPanel",
+	  duration: 1000,
+	  easing: "out-quintic",
+	  opacity: [0, 1],
+	  transform: ["translateY(-50vh)", 0]
+	});
+}
+const slideOutNotifictionPanel = async () => {	
+	await animate({
+	  elements: "#NotifictionPanel",
+	  name: "slideOutNotifictionPanel",
+	  duration: 750,
+	  easing: "in-quintic",
+	  opacity: [1, 0],
+	  transform: ["translateY(0vh)", 50]
+	});
+}
+const slideInAlertPanel = () => {	
+	animate({
+	  elements: "#AlertPanel",
+	  name: "slideInAlertPanel",
+	  duration: 1000,
+	  easing: "out-quintic",
+	  opacity: [0, 1],
+	  transform: ["translateY(-50vh)", 0]
+  });
+}
+const slideOutAlertPanel = async () => {
+  await animate({
+	  elements: "#AlertPanel",
+	  name: "slideOutAlertPanel",
+	  duration: 750,
+	  easing: "in-quintic",
+	  opacity: [1, 0],
+	  transform: ["translateY(0vh)", 50]
+  });
+}
+const slideInDialoguePanel = () => {	
+	animate({
+	  elements: "#DialoguePanel",
+	  name: "slideInDialoguePanel",
+	  duration: 1000,
+	  easing: "out-quintic",
+	  opacity: [0, 1],
+	  transform: ["translateY(-50vh)", 0]
+  });
+}
+const slideOutDialoguePanel = async () => {
+  await animate({
+	  elements: "#DialoguePanel",
+	  name: "slideOutDialoguePanel",
+	  duration: 750,
+	  easing: "in-quintic",
+	  opacity: [1, 0],
+	  transform: ["translateY(0vh)", 50]
+  });
+}
+const slideMenus = async (elms, direction = "normal") => {	
+	await animate({
+	  elements: elms,
+	  name: "slideMenus",
+	  direction: direction,
+	  delay: index => 100 + index * 100,
+	  duration: 1000,
+	  easing: "out-quintic",
+	  opacity: [0, 1],
+	  transform: index => ["translateY(-10vh)", 0]
+	});
+}
+const fadeOutMenu = async (elms) => {	
+	const options = await animate({
+	  elements: elms,
+	  name: "fadeOutMenu",
+	  delay: index => 100 + index * 100,
+	  duration: 750,
+	  easing: "in-quintic",
+	  opacity: [1, 0],
+	  transform: index => ["scale(1)", 2]
+	});
+	await animate({
+	  elements: elms,
+	  name: "slideMenus",
+	  direction: "reverse",
+	  duration: 10,
+	  easing: "in-quintic",
+	  opacity: [0, 0],
+	  transform: index => ["translateY(-10vh)", 0]
+	});
+}
+const playNotifiction = async () => {
+  fadeInBackdrop();
+  slideInNotifictionPanel();  
+  await delay(3000);
+  await slideOutNotifictionPanel();
+  fadeOutBackdrop(); 
+};
+
+
+document.getElementById("ShowMenu").addEventListener("click", (e) => {
+	(async () => {
+		await pause({elements: elements})
+		const Menus = document.querySelectorAll(".menu");
+		await slideMenus(Menus);
+	})();	
+}) 
+document.querySelectorAll(".menu").forEach(name => {
+  name.addEventListener("click", (e) => {
+	e.target.classList.add("selected");
+	let OtherMenus = document.querySelectorAll(".menu:not(.selected)");
+	e.target.classList.remove("selected");	
+	(async () => {
+		slideMenus(OtherMenus, "reverse");
+		await fadeOutMenu(e.target);	
+		await play({elements: elements});
+	})();
+	})
+	
+}) 
+document.getElementById("ShowNotifiction").addEventListener("click", (e) => {
+	(async () => {
+		await speed({elements: elements, speed:5})
+		await delay(500);
+		await pause({elements: elements})
+		await playNotifiction();
+		await play({elements: elements})
+		await delay(500);
+		await speed({elements: elements, speed:1})/**/
+	})();	
+}) 
+document.getElementById("ShowAlert").addEventListener("click", (e) => {
+		(async () => {		
+			await speed({elements: elements, speed:5})
+			await delay(500);
+			await pause({elements: elements});
+			await fadeInBackdrop();
+			await slideInAlertPanel();
+		})();
+})  
+document.getElementById("hideAlert").addEventListener("click", (e) => {
+		(async () => {	
+			await slideOutAlertPanel();
+			await fadeOutBackdrop();
+			await speed({elements: elements, speed:5});
+			await play({elements: elements});		
+			await delay(500);
+			await speed({elements: elements, speed:1})
+		})();
+})  
+document.getElementById("ShowDialogue").addEventListener("click", (e) => {
+		(async () => {		
+			await speed({elements: elements, speed:5});
+			await delay(500);
+			await pause({elements: elements});
+			await fadeInBackdrop();
+			await slideInDialoguePanel(); 
+		})();
+})  
+document.getElementById("HideDialogueAndContinue").addEventListener("click", (e) => {
+		(async () => {	
+			await slideOutDialoguePanel();  
+			await fadeOutBackdrop();
+			await speed({elements: elements, speed:5});	
+			await play({elements: elements});
+			await delay(500);
+			await speed({elements: elements, speed:1});	
+		})();
+})   
+document.getElementById("HideDialogueAndStop").addEventListener("click", (e) => {
+		(async () => {	
+			await slideOutDialoguePanel();  
+			await fadeOutBackdrop();		
+			await speed({elements: elements, speed:2});
+			await direction({animations: "rotateCircles", direction: "reverse"});
+			await loop({animations: "rotateCircles", loop: false});
+			await play({elements: elements});
+			await fadeOutCircles();
+		})();
+})  
+document.getElementById("RestartCircles").addEventListener("click", (e) => {
+	stop({elements: elements});
+		fadeInCircles();
+		rotateCircles();
+}) 
+document.getElementById("PauseCircles").addEventListener("click", (e) => {
+	pause({elements: elements});
+})  
+document.getElementById("ReverseCircles").addEventListener("click", (e) => {
+	direction({elements: elements, direction: "reverse", animations: "rotateCircles"});
+})  
+document.getElementById("PlayCircles").addEventListener("click", (e) => {
+	play({elements: elements});
+})  
+
+
+
+  </script>
+</html>
